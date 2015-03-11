@@ -15,10 +15,16 @@ require "sprockets/railtie"
 Bundler.require(*Rails.groups)
 
 module AngularRecipe
-  class Application < Rails::Application
-    config.assets.paths << Rails.root.join("vendor","assets","bower_components")
-    config.assets.paths << Rails.root.join("vendor","assets","bower_components","bootstrap-sass-official","assets","fonts")
-    config.assets.precompile << %r(.*.(?:eot|svg|ttf|woff)$)
-    config.active_record.raise_in_transactional_callbacks = true
-  end
+	class Application < Rails::Application
+		root.join('vendor', 'assets', 'bower_components').to_s.tap do |bower_path|
+		  config.sass.load_paths << bower_path
+		  config.assets.paths << bower_path
+		end
+		# Precompile Bootstrap fonts
+		config.assets.precompile << %r(bootstrap-sass/assets/fonts/bootstrap/[\w-]+\.(?:eot|svg|ttf|woff2?)$)
+		# Minimum Sass number precision required by bootstrap-sass
+		::Sass::Script::Number.precision = [8, ::Sass::Script::Number.precision].max
+	    config.active_record.raise_in_transactional_callbacks = true
+  	end
 end
+
